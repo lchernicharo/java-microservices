@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "config-server"
+		},
+		{
+			"path": "api-gateway"
+		},
+		{
+			"path": "discovery-server"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}

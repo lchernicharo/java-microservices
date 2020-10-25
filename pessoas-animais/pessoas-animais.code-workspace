@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "pessoas-ms"
+		},
+		{
+			"path": "animais-ms"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}

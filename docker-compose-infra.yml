@@ -1,0 +1,56 @@
+version: '3.4'
+
+networks:
+  docker-net:
+    driver: bridge
+
+services:
+  config-server:
+    image: configserver
+    build:
+      dockerfile: config-server.dockerfile
+      context: ./pessoas-animais/config-server/
+    volumes:
+      - /microservices-example/docker-volume/pessoas-animais-cfg:/config-files
+    networks: 
+      - docker-net
+    depends_on: 
+      - async-server
+    ports:
+      - 8000:8080
+    command: bash -c "/usr/wait-for-it.sh --timeout=30 async-server:9092 -- java -Djava.security.egd=file:/dev/./urandom -jar configserver.jar"
+  
+  async-server:
+    container_name: kafka-server
+    image: lchernicharo/kafka:2.13
+    networks: 
+      - docker-net
+    tmpfs: 
+      - /tmp/kafka-log
+      - /tmp/zookeeper
+    
+  discovery-server:
+    image: discoveryserver
+    build:
+      context: ./pessoas-animais/discovery-server/
+      dockerfile: discovery-server.dockerfile
+    networks: 
+      - docker-net
+    ports:
+      - 8001:8080
+    depends_on: 
+      - config-server
+    command: bash -c "/usr/wait-for-it.sh --timeout=45 config-server:8080 -- java -Djava.security.egd=file:/dev/./urandom -jar discoveryserver.jar"
+
+  api-gateway:
+    image: apigateway
+    build:
+      context: ./pessoas-animais/api-gateway/
+      dockerfile: api-gateway.dockerfile
+    networks: 
+      - docker-net
+    ports:
+      - 8002:8080
+    depends_on: 
+      - discovery-server
+    command: bash -c "/usr/wait-for-it.sh --timeout=60 discovery-server:8080 -- java -Djava.security.egd=file:/dev/./urandom -jar apigateway.jar"

@@ -1,0 +1,42 @@
+version: '3.4'
+
+networks:
+  microservices-example_docker-net:
+    external: true
+
+services: 
+  pessoas-db:
+    image: mongo:4.4.1
+    volumes: 
+      - /microservices-example/docker-volume/mongodb/pessoas-db:/data/db
+    networks: 
+      - microservices-example_docker-net
+  
+  pessoas-ms:
+    image: pessoasms
+    build:
+      context: ./pessoas-animais/pessoas-ms/
+      dockerfile: pessoas-ms.dockerfile
+    networks: 
+      - microservices-example_docker-net
+    depends_on: 
+      - pessoas-db
+    command: bash -c "/usr/wait-for-it.sh --timeout=20 pessoas-db:27017 -- java -Djava.security.egd=file:/dev/./urandom  -jar pessoasms.jar"
+
+  animais-db:
+    image: mongo:4.4.1
+    volumes: 
+      - /microservices-example/docker-volume/mongodb/animais-db:/data/db
+    networks: 
+      - microservices-example_docker-net
+  
+  animais-ms:
+    image: animaisms
+    build:
+      context: ./pessoas-animais/animais-ms/
+      dockerfile: animais-ms.dockerfile
+    networks: 
+      - microservices-example_docker-net
+    depends_on: 
+      - animais-db
+    command: bash -c "/usr/wait-for-it.sh --timeout=20 animais-db:27017 -- java -Djava.security.egd=file:/dev/./urandom  -jar animaisms.jar"
