@@ -1,1 +1,0 @@
-bash -c "/usr/wait-for-it.sh --timeout=45 async-server:9092 -- java -Djava.security.egd=file:/dev/./urandom  -jar configserver.jar"
